@@ -46,10 +46,6 @@ urllib3==2.5.0
 # ML & DL Frameworks
 # -----------------
 numpy==2.3.5
-scipy==1.10.1
-scikit-learn==1.6.1
-matplotlib==3.8.4
-seaborn==0.13.2
 pandas==2.3.3
 tensorflow==2.20.0
 torch==2.10.0
