@@ -46,7 +46,7 @@ urllib3==2.5.0
 # ML & DL Frameworks
 # -----------------
 numpy==1.26.2
-scikit-learn==1.6.3
+scikit-learn==1.6.1
 matplotlib==3.8.4
 seaborn==0.13.2
 pandas==2.3.3
