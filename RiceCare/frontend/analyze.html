@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Analyze Rice Leaf | RiceCare</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+<div class="nav-logo">RiceCare</div>
+
+<ul class="nav-links">
+<li><a href="index.html" id="homeText">Home</a></li>
+<li><a href="yield.html" id="yieldText">Yield Prediction</a></li>
+<li><a href="analyze.html" class="active" id="analyzeText">Analyze Leaf</a></li>
+</ul>
+
+<select id="language" onchange="updateLanguage()">
+<option value="en">English</option>
+<option value="ta">தமிழ்</option>
+</select>
+
+</nav>
+
+
+<header class="hero small-hero">
+<h1 id="pageTitle">Analyze Paddy Leaf</h1>
+<p id="pageDesc">Upload a Paddy leaf image to detect disease or nutrient deficiency</p>
+</header>
+
+
+<section class="section analyze-section">
+
+<div class="analyze-card">
+
+<h2 id="cardTitle">🌿 Analyze Leaf</h2>
+
+<label id="uploadLabel">Upload Leaf Image</label>
+
+<div class="upload-box" onclick="document.getElementById('leaf').click()">
+
+<input type="file" id="leaf" hidden accept="image/*" onchange="previewImg(event)">
+
+<p id="uploadText">Click to Upload or Drag & Drop</p>
+
+</div>
+
+<div class="preview-container">
+<img id="leafPreview">
+</div>
+
+<button onclick="analyzeLeaf()" id="analyzeBtn">Analyze</button>
+
+<div id="result" class="result-box"></div>
+
+</div>
+
+</section>
+
+
+<footer>
+<p>© 2025 RiceCare | Smart Farming with AI</p>
+</footer>
+
+
+<script>
+
+const labels = {
+
+en: {
+
+home:"Home",
+yield:"Yield Prediction",
+analyze:"Analyze Leaf",
+
+title:"Analyze Paddy Leaf",
+desc:"Upload a Paddy leaf image to detect disease or nutrient deficiency",
+
+card:"Analyze Leaf",
+upload:"Upload Leaf Image",
+uploadText:"Click to Upload or Drag & Drop",
+
+analyzeBtn:"Analyze",
+
+analyzing:"Analyzing leaf image...",
+cause:"Cause",
+actions:"Recommended Actions",
+prevention:"Prevention Tips",
+
+disease:"Disease Detected",
+nutrient:"Nutrient Status",
+
+uploadAlert:"Please upload a leaf image",
+
+error:"Error analyzing image"
+
+},
+
+ta: {
+
+home:"முகப்பு",
+yield:"விளைச்சல் கணிப்பு",
+analyze:"இலை பகுப்பாய்வு",
+
+title:"நெல் இலை பகுப்பாய்வு",
+desc:"நோய் அல்லது ஊட்டச்சத்து குறைபாட்டை கண்டறிய நெல் இலை படத்தை பதிவேற்றவும்",
+
+card:"இலை பகுப்பாய்வு",
+upload:"இலை படத்தை பதிவேற்றவும்",
+uploadText:"படத்தை பதிவேற்ற கிளிக் செய்யவும்",
+
+analyzeBtn:"பகுப்பாய்வு செய்",
+
+analyzing:"படம் பகுப்பாய்வு செய்யப்படுகிறது...",
+cause:"காரணம்",
+actions:"பரிந்துரைக்கப்பட்ட நடவடிக்கைகள்",
+prevention:"தடுப்பு குறிப்புகள்",
+
+disease:"கண்டறியப்பட்ட நோய்",
+nutrient:"ஊட்டச்சத்து நிலை",
+
+uploadAlert:"தயவுசெய்து ஒரு இலை படத்தை பதிவேற்றவும்",
+
+error:"படத்தை பகுப்பாய்வு செய்ய முடியவில்லை"
+
+}
+
+};
+
+
+function updateLanguage(){
+
+const lang=document.getElementById("language").value;
+localStorage.setItem("lang",lang);
+
+const L=labels[lang];
+
+/* Navbar */
+
+document.getElementById("homeText").innerText=L.home;
+document.getElementById("yieldText").innerText=L.yield;
+document.getElementById("analyzeText").innerText=L.analyze;
+
+/* Page */
+
+document.getElementById("pageTitle").innerText=L.title;
+document.getElementById("pageDesc").innerText=L.desc;
+
+document.getElementById("cardTitle").innerText="🌿 "+L.card;
+document.getElementById("uploadLabel").innerText=L.upload;
+document.getElementById("uploadText").innerText=L.uploadText;
+
+document.getElementById("analyzeBtn").innerText=L.analyzeBtn;
+
+/* Clear previous result */
+
+document.getElementById("result").innerHTML="";
+
+}
+
+
+function previewImg(e){
+
+const img=document.getElementById("leafPreview");
+
+img.src=URL.createObjectURL(e.target.files[0]);
+
+img.style.display="block";
+
+}
+
+
+async function analyzeLeaf(){
+
+const file=document.getElementById("leaf").files[0];
+const resultBox=document.getElementById("result");
+
+const lang=document.getElementById("language").value;
+const L=labels[lang];
+
+if(!file){
+
+alert(L.uploadAlert);
+return;
+
+}
+
+resultBox.innerHTML="⏳ "+L.analyzing;
+
+const formData=new FormData();
+formData.append("image",file);
+formData.append("lang",lang);
+
+try{
+
+const res=await fetch("http://127.0.0.1:5000/analyze_leaf",{
+
+method:"POST",
+body:formData
+
+});
+
+const data=await res.json();
+
+const cause=data.cause || "-";
+
+const actions=(data.recommendations || [])
+.map(r=>`<li>${r}</li>`).join("");
+
+const prevention=(data.prevention || [])
+.map(r=>`<li>${r}</li>`).join("");
+
+let typeIcon = data.type==="disease" ? "🦠" : "🌿";
+let typeLabel = data.type==="disease" ? L.disease : L.nutrient;
+
+resultBox.innerHTML=`
+
+<div class="result-card">
+
+<div class="result-title">${typeIcon} ${typeLabel}: ${data.prediction}</div>
+
+<div class="result-section">
+<b>${L.cause}:</b><br>${cause}
+</div>
+
+<div class="result-section">
+<b>${L.actions}:</b>
+<ul>${actions}</ul>
+</div>
+
+<div class="result-section">
+<b>${L.prevention}:</b>
+<ul>${prevention}</ul>
+</div>
+
+</div>
+
+`;
+
+}
+
+catch(error){
+
+console.error(error);
+
+resultBox.innerHTML="❌ "+L.error;
+
+}
+
+}
+
+
+/* Load saved language */
+
+window.onload=()=>{
+
+let lang=localStorage.getItem("lang") || "en";
+
+document.getElementById("language").value=lang;
+
+updateLanguage();
+
+};
+
+</script>
+
+</body>
+</html>
