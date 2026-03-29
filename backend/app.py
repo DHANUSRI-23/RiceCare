@@ -30,17 +30,27 @@ CORS(app)
 # -------------------------------------------------------
 # LOAD MODELS
 # -------------------------------------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 disease_model = tf.keras.models.load_model(
-    r"C:\Crop Project Modified\Web_App\backend\Models\paddy_disease_mobilenet.h5"
+    os.path.join(BASE_DIR, "Models", "paddy_disease_mobilenet.h5")
 )
 
 nutrient_model = tf.keras.models.load_model(
-    r"C:\Crop Project Modified\Web_App\backend\Models\paddy_nutrient_model.h5"
+    os.path.join(BASE_DIR, "Models", "paddy_nutrient_model.h5")
 )
 
-yield_model = pickle.load(open(r"C:\Crop Project Modified\Web_App\backend\Models\yield_model.pkl", "rb"))
-district_encoder = pickle.load(open(r"C:\Crop Project Modified\Web_App\backend\Models\district_encoder.pkl", "rb"))
-season_encoder = pickle.load(open(r"C:\Crop Project Modified\Web_App\backend\Models\season_encoder.pkl", "rb"))
+yield_model = pickle.load(
+    open(os.path.join(BASE_DIR, "Models", "yield_model.pkl"), "rb")
+)
+
+district_encoder = pickle.load(
+    open(os.path.join(BASE_DIR, "Models", "district_encoder.pkl"), "rb")
+)
+
+season_encoder = pickle.load(
+    open(os.path.join(BASE_DIR, "Models", "season_encoder.pkl"), "rb")
+)
 
 # -------------------------------------------------------
 # CLASSES
