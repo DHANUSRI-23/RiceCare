@@ -19,12 +19,18 @@ from recommendations import (
     nutrient_recommendations
 )
 
+from flask import send_from_directory
+
 from translations import disease_names, nutrient_names
 
 # -------------------------------------------------------
 # INITIALIZE APP
 # -------------------------------------------------------
-app = Flask(__name__, static_folder="static", static_url_path="/static")
+app = Flask(
+    __name__,
+    static_folder="../frontend",
+    static_url_path=""
+)
 CORS(app)
 
 # -------------------------------------------------------
@@ -81,6 +87,17 @@ API_KEY = "e78ee0e517b617b3f082bb1ddddd6d31"
 def home():
     return "Backend is Running"
 
+@app.route("/")
+def home():
+    return send_from_directory("../frontend", "index.html")
+
+@app.route("/analyze")
+def analyze_page():
+    return send_from_directory("../frontend", "analyze.html")
+
+@app.route("/yield")
+def yield_page():
+    return send_from_directory("../frontend", "yield.html")
 
 # -------------------------------------------------------
 # DISEASE PREDICTION

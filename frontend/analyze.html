@@ -305,7 +305,7 @@ formData.append("image",file);
 formData.append("lang", currentLanguage);
 
 try{
-const res=await fetch("http://127.0.0.1:5000/analyze_leaf",{
+const res=await fetch("/analyze_leaf",{
 method:"POST",
 body:formData
 });
