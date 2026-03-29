@@ -1,98 +1,18 @@
-# -----------------
-# Core Python Utilities
-# -----------------
-attrs==25.3.0
-babel==2.17.0
-click==8.3.1
-colorama==0.4.6
-decorator==5.2.1
-dill==0.4.0
-importlib_resources==6.5.2
-joblib==1.5.1
-jsonlines==4.0.0
-jsonschema==4.25.0
-orjson==3.11.1
-packaging==25.0
-pathos==0.3.4
-platformdirs==4.3.8
-pytz==2024.1
-python-dotenv==1.1.1
-six==1.16.0
-typing_extensions==4.14.1
-wheel==0.43.0
-python-dateutil==2.9.0.post0
-regex==2024.11.6
-pyyaml==6.0.2
-psutil==7.0.0
-distro==1.9.0
-fsspec==2026.2.0
-typing-inspection==0.4.1
-tqdm==4.67.1
-rich==14.1.0
-
-# -----------------
-# Web Frameworks & APIs
-# -----------------
-Django==5.0.4
 Flask==3.0.3
-Flask-Session==0.8.0
 flask-cors==6.0.1
-flask-babel==4.0.0
-Werkzeug==3.0.4
-requests==2.32.4
-urllib3==2.5.0
 gunicorn==21.2.0
+Werkzeug>=3.0,<4.0
 
-# -----------------
-# ML & DL Frameworks
-# -----------------
 numpy>=1.26,<2.0
-scikit-learn>=1.6,<2.0
-matplotlib>=3.8,<4.0
-seaborn>=0.13,<0.14
 pandas>=2.3,<3.0
+scikit-learn>=1.6,<2.0
+joblib>=1.5,<2.0
+
 tensorflow==2.20.0
-torch==2.10.0
 keras==3.12.0
-tensorboard==2.20.0
-tensorboard-data-server==0.7.2
-opt_einsum==3.4.0
-matplotlib-inline==0.1.7
+xgboost>=2.0,<3.0
+
 Pillow>=10.0,<11.0
-opencv-contrib-python>=4.8.1.78,<4.13
+matplotlib>=3.8,<4.0
 
-# -----------------
-# NLP / Transformers
-# -----------------
-spacy==3.8.11
-spacy-legacy==3.0.12
-spacy-loggers==1.0.5
-transformers==5.3.0
-sentence-transformers==5.3.0
-nltk==3.9.1
-langdetect==1.0.9
-en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
-
-# -----------------
-# GIS / Mapping
-# -----------------
-geopandas==1.1.1
-osmnx==2.0.6
-folium==0.20.0
-geopy==2.4.1
-pyproj==3.7.1
-shapely==2.1.1
-pyogrio==0.11.1
-xyzservices==2025.4.0
-
-# -----------------
-# Cloud / Google APIs
-# -----------------
-google-ai-generativelanguage==0.6.15
-google-generativeai==0.8.5
-google-api-python-client==2.179.0
-google-auth==2.40.3
-google-auth-httplib2==0.2.0
-google-cloud-firestore==2.21.0
-google-cloud-storage==3.4.0
-firebase_admin==7.1.0
+requests==2.32.4
