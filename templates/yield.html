@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>Yield Prediction | RiceCare</title>
+
+<link rel="stylesheet" href="/static/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+<div class="nav-logo">RiceCare</div>
+
+<ul class="nav-links">
+<li><a href="/" id="navHome">Home</a></li>
+<li><a href="/yield" class="active" id="navYield">Yield Prediction</a></li>
+<li><a href="/analyze" id="navAnalyze">Analyze Leaf</a></li>
+</ul>
+
+<select id="language">
+<option value="en">English</option>
+<option value="ta">தமிழ்</option>
+</select>
+
+</nav>
+
+<header class="hero small-hero">
+<h1 id="title">Yield Prediction</h1>
+<p id="desc">Estimate rice yield based on your location, season, and field area</p>
+</header>
+
+<section class="section analyze-section">
+
+<div class="analyze-card">
+
+<h2 id="formTitle">Enter Crop Details</h2>
+
+<label id="districtLabel">District</label> <select id="district"></select>
+
+<label id="seasonLabel">Season</label> <select id="season"></select>
+
+<label id="areaLabel">Area (in Hectares)</label> <input type="number" id="area">
+
+<button onclick="predictYield()" id="predictBtn">Predict Yield</button>
+
+<div id="yieldResult" class="result-box"></div>
+
+</div>
+</section>
+
+<footer>
+<p>© 2025 RiceCare | Smart Farming with AI</p>
+</footer>
+
+<script>
+
+const labels={
+
+en:{
+home:"Home",
+yieldNav:"Yield Prediction",
+analyze:"Analyze Leaf",
+
+title:"Yield Prediction",
+desc:"Estimate rice yield based on your location, season, and field area",
+formTitle:"Enter Crop Details",
+
+district:"District",
+season:"Season",
+area:"Area (Hectares)",
+predict:"Predict Yield",
+predicting:"Predicting yield...",
+
+weather:"Weather Summary",
+recommend:"Recommendations",
+yieldText:"Predicted Yield",
+
+avgTemp:"Avg Temp",
+maxTemp:"Max Temp",
+minTemp:"Min Temp",
+humidity:"Humidity",
+rainfall:"Rainfall",
+solar:"Solar Radiation",
+unit:"Tons / Hectare",
+
+selectDistrict:"Select District",
+selectSeason:"Select Season"
+},
+
+ta:{
+home:"முகப்பு",
+yieldNav:"விளைச்சல் கணிப்பு",
+analyze:"இலை பகுப்பாய்வு",
+
+title:"நெல் விளைச்சல் கணிப்பு",
+desc:"உங்கள் மாவட்டம் மற்றும் பருவத்தின் அடிப்படையில் நெல் விளைச்சலை கணிக்கவும்",
+formTitle:"பயிர் விவரங்களை உள்ளிடவும்",
+
+district:"மாவட்டம்",
+season:"பருவம்",
+area:"பரப்பு (ஹெக்டேர்)",
+predict:"விளைச்சலை கணிக்க",
+predicting:"கணிக்கப்படுகிறது...",
+
+weather:"வானிலை சுருக்கம்",
+recommend:"பரிந்துரைகள்",
+yieldText:"மதிப்பிடப்பட்ட விளைச்சல்",
+
+avgTemp:"சராசரி வெப்பநிலை",
+maxTemp:"அதிகபட்ச வெப்பநிலை",
+minTemp:"குறைந்தபட்ச வெப்பநிலை",
+humidity:"ஈரப்பதம்",
+rainfall:"மழை அளவு",
+solar:"சூரிய கதிர்வீச்சு",
+unit:"டன் / ஹெக்டேர்",
+
+selectDistrict:"மாவட்டத்தை தேர்வு செய்யவும்",
+selectSeason:"பருவத்தை தேர்வு செய்யவும்"
+}
+
+};
+
+
+const districts = {
+
+en:[
+["Ariyalur","Ariyalur"],["Chengalpattu","Chengalpattu"],["Chennai","Chennai"],
+["Coimbatore","Coimbatore"],["Cuddalore","Cuddalore"],["Dharmapuri","Dharmapuri"],
+["Dindigul","Dindigul"],["Erode","Erode"],["Kallakurichi","Kallakurichi"],
+["Kanchipuram","Kanchipuram"],["Kanyakumari","Kanyakumari"],["Karur","Karur"],
+["Krishnagiri","Krishnagiri"],["Madurai","Madurai"],["Mayiladuthurai","Mayiladuthurai"],
+["Nagapattinam","Nagapattinam"],["Namakkal","Namakkal"],["Nilgiris","Nilgiris"],
+["Perambalur","Perambalur"],["Pudukkottai","Pudukkottai"],["Ramanathapuram","Ramanathapuram"],
+["Ranipet","Ranipet"],["Salem","Salem"],["Sivagangai","Sivagangai"],
+["Tenkasi","Tenkasi"],["Thanjavur","Thanjavur"],["Theni","Theni"],
+["Thoothukudi","Thoothukudi"],["Tiruchirappalli","Tiruchirappalli"],
+["Tirunelveli","Tirunelveli"],["Tirupattur","Tirupattur"],["Tiruppur","Tiruppur"],
+["Tiruvallur","Tiruvallur"],["Tiruvannamalai","Tiruvannamalai"],["Tiruvarur","Tiruvarur"],
+["Vellore","Vellore"],["Viluppuram","Viluppuram"],["Virudhunagar","Virudhunagar"]
+],
+
+ta:[
+["Ariyalur","அரியலூர்"],["Chengalpattu","செங்கல்பட்டு"],["Chennai","சென்னை"],
+["Coimbatore","கோயம்புத்தூர்"],["Cuddalore","கடலூர்"],["Dharmapuri","தர்மபுரி"],
+["Dindigul","திண்டுக்கல்"],["Erode","ஈரோடு"],["Kallakurichi","கள்ளக்குறிச்சி"],
+["Kanchipuram","காஞ்சிபுரம்"],["Kanyakumari","கன்னியாகுமரி"],["Karur","கரூர்"],
+["Krishnagiri","கிருஷ்ணகிரி"],["Madurai","மதுரை"],["Mayiladuthurai","மயிலாடுதுறை"],
+["Nagapattinam","நாகப்பட்டினம்"],["Namakkal","நாமக்கல்"],["Nilgiris","நீலகிரி"],
+["Perambalur","பெரம்பலூர்"],["Pudukkottai","புதுக்கோட்டை"],["Ramanathapuram","ராமநாதபுரம்"],
+["Ranipet","ராணிப்பேட்டை"],["Salem","சேலம்"],["Sivagangai","சிவகங்கை"],
+["Tenkasi","தென்காசி"],["Thanjavur","தஞ்சாவூர்"],["Theni","தேனி"],
+["Thoothukudi","தூத்துக்குடி"],["Tiruchirappalli","திருச்சி"],
+["Tirunelveli","திருநெல்வேலி"],["Tirupattur","திருப்பத்தூர்"],["Tiruppur","திருப்பூர்"],
+["Tiruvallur","திருவள்ளூர்"],["Tiruvannamalai","திருவண்ணாமலை"],["Tiruvarur","திருவாரூர்"],
+["Vellore","வேலூர்"],["Viluppuram","விழுப்புரம்"],["Virudhunagar","விருதுநகர்"]
+]
+
+};
+
+
+function updateLang(){
+
+const lang=document.getElementById("language").value;
+const L=labels[lang];
+
+document.getElementById("navHome").innerText=L.home;
+document.getElementById("navYield").innerText=L.yieldNav;
+document.getElementById("navAnalyze").innerText=L.analyze;
+
+document.getElementById("title").innerText=L.title;
+document.getElementById("desc").innerText=L.desc;
+document.getElementById("formTitle").innerText=L.formTitle;
+
+document.getElementById("districtLabel").innerText=L.district;
+document.getElementById("seasonLabel").innerText=L.season;
+document.getElementById("areaLabel").innerText=L.area;
+document.getElementById("predictBtn").innerText=L.predict;
+
+const districtSelect=document.getElementById("district");
+districtSelect.innerHTML=`<option value="">${L.selectDistrict}</option>`;
+
+districts[lang].forEach(d=>{
+const opt=document.createElement("option");
+opt.value=d[0];
+opt.text=d[1];
+districtSelect.appendChild(opt);
+});
+
+const seasonSelect=document.getElementById("season");
+
+seasonSelect.innerHTML=`<option value="">${L.selectSeason}</option>`;
+
+const seasonValues=["Kharif","Rabi","Summer","Winter"];
+const seasonTamil=["கரீப்","ரபி","கோடை","குளிர்காலம்"];
+
+seasonValues.forEach((s,i)=>{
+const opt=document.createElement("option");
+opt.value=s;
+opt.text=(lang==="ta")?seasonTamil[i]:s;
+seasonSelect.appendChild(opt);
+});
+
+localStorage.setItem("lang",lang);
+
+}
+
+
+document.getElementById("language").addEventListener("change",updateLang);
+
+
+
+async function predictYield(){
+
+const lang=localStorage.getItem("lang")||"en";
+const L=labels[lang];
+
+const district=document.getElementById("district").value;
+const season=document.getElementById("season").value;
+const area=document.getElementById("area").value;
+
+const resultBox=document.getElementById("yieldResult");
+
+resultBox.innerHTML="⏳ "+L.predicting;
+
+const res=await fetch("/predict_yield",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({district,season,area,lang})
+});
+
+const data=await res.json();
+
+const rec=(data.recommendations||[]).map(r=>`<li>${r}</li>`).join("");
+
+resultBox.innerHTML=`
+
+<div class="result-card yield-card">
+
+<div class="result-title">
+🌾 ${L.yieldText}: <b>${data.predicted_yield} ${L.unit}</b>
+</div>
+
+<div class="result-section">
+
+<b>📊 ${L.weather}</b>
+
+<ul>
+<li>${L.avgTemp}: ${data.weather.avg_temperature}°C</li>
+<li>${L.maxTemp}: ${data.weather.max_temperature}°C</li>
+<li>${L.minTemp}: ${data.weather.min_temperature}°C</li>
+<li>${L.humidity}: ${data.weather.humidity}%</li>
+<li>${L.rainfall}: ${data.weather.rainfall} mm</li>
+<li>${L.solar}: ${data.weather.solar_radiation}</li>
+</ul>
+
+</div>
+
+<div class="result-section">
+
+<b>✔ ${L.recommend}</b>
+
+<ul>${rec}</ul>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+updateLang();
+
+</script>
+
+</body>
+</html>
