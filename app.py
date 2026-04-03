@@ -7,11 +7,8 @@ import requests
 from datetime import datetime
 from PIL import Image
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-
-from flask import render_template
-
 
 import tensorflow as tf
 from tensorflow.keras.applications.efficientnet import preprocess_input
@@ -25,7 +22,7 @@ from recommendations import (
 from translations import disease_names, nutrient_names
 
 # -------------------------------------------------------
-# INITIALIZE APP
+# APP INIT
 # -------------------------------------------------------
 app = Flask(
     __name__,
@@ -34,6 +31,7 @@ app = Flask(
     static_url_path="/static"
 )
 CORS(app)
+
 
 # -------------------------------------------------------
 # LOAD MODELS
@@ -64,98 +62,28 @@ season_encoder = pickle.load(
 # CLASSES
 # -------------------------------------------------------
 disease_classes = [
-    "Bacterial_leaf_blight",
-    "Brown_spot",
-    "Healthy_leaf",
-    "Leaf_Blast",
-    "others",
-    "tungro"
+    "Bacterial_leaf_blight","Brown_spot","Healthy_leaf",
+    "Leaf_Blast","others","tungro"
 ]
 
-nutrient_classes = [
-    "Healthy",
-    "Nitrogen",
-    "Phosphorus",
-    "Potassium"
-]
+nutrient_classes = ["Healthy","Nitrogen","Phosphorus","Potassium"]
 
 API_KEY = "e78ee0e517b617b3f082bb1ddddd6d31"
 
-
 # -------------------------------------------------------
-# HOME
+# ROUTES
 # -------------------------------------------------------
 @app.route("/")
 def home():
     return render_template("index.html")
 
-@app.route("/analyze")
-def analyze():
-    return render_template("analyze.html")
-
 @app.route("/yield")
 def yield_page():
     return render_template("yield.html")
 
-
-# -------------------------------------------------------
-# DISEASE PREDICTION
-# -------------------------------------------------------
-@app.route("/predict_disease", methods=["POST"])
-def predict_disease():
-
-    file = request.files.get("image")
-
-    if not file:
-        return jsonify({"error": "No image uploaded"}), 400
-
-    img = Image.open(io.BytesIO(file.read())).convert("RGB")
-    img = img.resize((224, 224))
-
-    img_array = np.array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
-
-    pred = disease_model.predict(img_array)
-    disease = disease_classes[int(np.argmax(pred))]
-
-    response = disease_recommendations(disease)
-
-    return jsonify({
-        "prediction": disease,
-        "recommendations": response.get("actions", []),
-        "prevention": response.get("prevention", [])
-    })
-
-
-# -------------------------------------------------------
-# NUTRIENT PREDICTION
-# -------------------------------------------------------
-@app.route("/predict_nutrient", methods=["POST"])
-def predict_nutrient():
-
-    file = request.files.get("image")
-
-    if not file:
-        return jsonify({"error": "No image uploaded"}), 400
-
-    img = Image.open(io.BytesIO(file.read())).convert("RGB")
-    img = img.resize((224, 224))
-
-    img_array = np.array(img)
-    img_array = np.expand_dims(img_array, axis=0)
-    img_array = preprocess_input(img_array)
-
-    pred = nutrient_model.predict(img_array)
-
-    nutrient = nutrient_classes[int(np.argmax(pred))]
-
-    response = nutrient_recommendations(nutrient)
-
-    return jsonify({
-        "prediction": nutrient,
-        "recommendations": response.get("actions", [])
-    })
-
+@app.route("/analyze")
+def analyze_page():
+    return render_template("analyze.html")
 
 # -------------------------------------------------------
 # YIELD PREDICTION
@@ -164,136 +92,94 @@ def predict_nutrient():
 def predict_yield():
 
     data = request.json
+    lang = data.get("lang","en")
 
-    district = data.get("district", "").strip()
-    season = data.get("season", "").strip()
-    area = float(data.get("area", 0))
-
-    lang = data.get("lang", "en")
+    district = data.get("district","").strip()
+    season = data.get("season","").strip()
+    area = float(data.get("area",0))
 
     if not district or not season or area <= 0:
-        return jsonify({"error": "district, season and area required"}), 400
+        return jsonify({"error":"Invalid input"}),400
 
-
-    # -------------------------------------------------------
-    # GET GEO LOCATION
-    # -------------------------------------------------------
-    geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={district},IN&limit=1&appid={API_KEY}"
-
-    geo = requests.get(geo_url).json()
+    # GEO
+    geo = requests.get(
+        f"http://api.openweathermap.org/geo/1.0/direct?q={district},IN&limit=1&appid={API_KEY}"
+    ).json()
 
     if not geo:
-        return jsonify({"error": f"Invalid district: {district}"}), 400
+        return jsonify({"error":"Invalid district"}),400
 
-    lat = geo[0]["lat"]
-    lon = geo[0]["lon"]
+    lat, lon = geo[0]["lat"], geo[0]["lon"]
 
-
-    # -------------------------------------------------------
-    # WEATHER FORECAST
-    # -------------------------------------------------------
-    forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
-
-    forecast = requests.get(forecast_url).json().get("list", [])
+    # WEATHER
+    forecast = requests.get(
+        f"http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
+    ).json().get("list",[])
 
     if not forecast:
-        return jsonify({"error": "Weather data unavailable"}), 400
+        return jsonify({"error":"Weather unavailable"}),400
 
+    temp_avg = np.mean([d["main"]["temp"] for d in forecast])
+    temp_max = np.max([d["main"]["temp_max"] for d in forecast])
+    temp_min = np.min([d["main"]["temp_min"] for d in forecast])
+    humidity = np.mean([d["main"]["humidity"] for d in forecast])
+    rainfall = np.sum([d.get("rain",{}).get("3h",0) for d in forecast])
+    solar = np.mean([100 - d["clouds"]["all"] for d in forecast])
 
-    temp_avg = float(np.mean([d["main"]["temp"] for d in forecast]))
-    temp_max = float(np.max([d["main"]["temp_max"] for d in forecast]))
-    temp_min = float(np.min([d["main"]["temp_min"] for d in forecast]))
-    humidity = float(np.mean([d["main"]["humidity"] for d in forecast]))
-    rainfall = float(np.sum([d.get("rain", {}).get("3h", 0) for d in forecast]))
-    solar = float(np.mean([100 - d["clouds"]["all"] for d in forecast]))
-
-
-    # -------------------------------------------------------
-    # MODEL INPUT
-    # -------------------------------------------------------
     df = pd.DataFrame([{
-
-        "District": district,
-        "Year": datetime.now().year,
-        "Season": season,
-        "Area": area,
-        "Production": 0,
-
-        "T2M": temp_avg,
-        "T2M_MAX": temp_max,
-        "T2M_MIN": temp_min,
-        "RH2M": humidity,
-        "Rainfall": rainfall,
-        "Solar_Radiation": solar,
-
-        "N": 90,
-        "P": 45,
-        "K": 120,
-        "pH": 6.8
+        "District":district,
+        "Year":datetime.now().year,
+        "Season":season,
+        "Area":area,
+        "Production":0,
+        "T2M":temp_avg,
+        "T2M_MAX":temp_max,
+        "T2M_MIN":temp_min,
+        "RH2M":humidity,
+        "Rainfall":rainfall,
+        "Solar_Radiation":solar,
+        "N":90,"P":45,"K":120,"pH":6.8
     }])
 
-
-    # -------------------------------------------------------
-    # ENCODE VALUES
-    # -------------------------------------------------------
     try:
         df["District"] = district_encoder.transform(df["District"])
         df["Season"] = season_encoder.transform(df["Season"])
-    except Exception as e:
-        return jsonify({"error": "District or season not supported by model"}), 400
+    except:
+        return jsonify({"error":"Encoding error"}),400
 
+    pred = float(yield_model.predict(df)[0])
 
-    # -------------------------------------------------------
-    # PREDICT
-    # -------------------------------------------------------
-    predicted_yield = float(yield_model.predict(df)[0])
-
-
-    # -------------------------------------------------------
-    # RECOMMENDATIONS
-    # -------------------------------------------------------
     recommendations = yield_recommendations(
-    predicted_yield,
-    {
-        "avg_temperature": temp_avg,
-        "rainfall_mm": rainfall
-    },
-    season,
-    lang
-)
+        pred,
+        {"avg_temperature":temp_avg,"rainfall_mm":rainfall},
+        season,
+        lang
+    )
 
-
-    # -------------------------------------------------------
-    # RESPONSE
-    # -------------------------------------------------------
     return jsonify({
-
-        "predicted_yield": round(predicted_yield, 2),
-
-        "weather": {
-            "avg_temperature": round(temp_avg, 2),
-            "max_temperature": round(temp_max, 2),
-            "min_temperature": round(temp_min, 2),
-            "humidity": round(humidity, 2),
-            "rainfall": round(rainfall, 2),
-            "solar_radiation": round(solar, 2)
+        "predicted_yield": round(pred,2),
+        "weather":{
+            "avg_temperature":round(temp_avg,2),
+            "max_temperature":round(temp_max,2),
+            "min_temperature":round(temp_min,2),
+            "humidity":round(humidity,2),
+            "rainfall":round(rainfall,2),
+            "solar_radiation":round(solar,2)
         },
-
-        "recommendations": recommendations
+        "recommendations":recommendations
     })
 
-
-
 # -------------------------------------------------------
-# ANALYZE LEAF (AUTO DETECT DISEASE / NUTRIENT)
+# ANALYZE LEAF
 # -------------------------------------------------------
 @app.route("/analyze_leaf", methods=["POST"])
 def analyze_leaf():
+
     file = request.files.get("image")
     lang = request.form.get("lang","en")
 
     if not file:
-        return jsonify({"error":"No image uploaded"}),400
+        return jsonify({"error":"No image"}),400
 
     img = Image.open(io.BytesIO(file.read())).convert("RGB")
     img = img.resize((224,224))
@@ -301,63 +187,56 @@ def analyze_leaf():
     img_array = np.array(img)/255.0
     img_array = np.expand_dims(img_array,axis=0)
 
-    # -------------------------------------------------------
-    # DISEASE MODEL
-    # -------------------------------------------------------
+    # DISEASE
     disease_pred = disease_model.predict(img_array)
+    d_conf = float(np.max(disease_pred))
+    d_idx = int(np.argmax(disease_pred))
+    disease = disease_classes[d_idx]
 
-    disease_confidence = float(np.max(disease_pred))
-    disease_idx = int(np.argmax(disease_pred))
-    disease = disease_classes[disease_idx]
+    if d_conf >= 0.6 and disease != "Healthy_leaf":
 
-    response = None  # <-- initialize response
+        res = disease_recommendations(disease,lang)
+        product = res.get("product")
 
-    if disease_confidence >= 0.60 and disease != "Healthy_leaf":
-        response = disease_recommendations(disease, lang)
-
-        product = response.get("product", None)
         if product:
-            img = product.get("image", "")
-            if not img.startswith("/static/") and not img.startswith("http"):
-                product["image"] = f"/static/products/{img}"
-
+            img_path = product.get("image","")
+            if not img_path.startswith("/static"):
+                product["image"] = f"/static/products/{img_path}"
 
         return jsonify({
             "type":"disease",
             "prediction":disease_names.get(disease,{}).get(lang,disease),
-            "confidence":round(disease_confidence,3),
-            "cause":response.get("cause",""),
-            "actions":response.get("actions",[]),
-            "prevention":response.get("prevention",[]),
+            "cause":res.get("cause",""),
+            "actions":res.get("actions",[]),
+            "prevention":res.get("prevention",[]),
             "product":product
         })
 
-    # -------------------------------------------------------
-    # NUTRIENT MODEL (if disease not detected)
-    # -------------------------------------------------------
+    # NUTRIENT
     nutrient_img = preprocess_input(img_array*255.0)
-    nutrient_pred = nutrient_model.predict(nutrient_img)
-    nutrient_idx = int(np.argmax(nutrient_pred))
-    nutrient = nutrient_classes[nutrient_idx]
+    n_pred = nutrient_model.predict(nutrient_img)
+    n_idx = int(np.argmax(n_pred))
+    nutrient = nutrient_classes[n_idx]
 
-    response = nutrient_recommendations(nutrient, lang)
-    product = response.get("product", None)
+    res = nutrient_recommendations(nutrient,lang)
+    product = res.get("product")
+
     if product:
-        img = product.get("image", "")
-        if not img.startswith("/static/") and not img.startswith("http"):
-            product["image"] = f"/static/products/{img}"
+        img_path = product.get("image","")
+        if not img_path.startswith("/static"):
+            product["image"] = f"/static/products/{img_path}"
 
     return jsonify({
         "type":"nutrient",
         "prediction":nutrient_names.get(nutrient,{}).get(lang,nutrient),
-        "cause":response.get("cause",""),
-        "actions":response.get("actions",[]),
-        "prevention":response.get("prevention",[]),
+        "cause":res.get("cause",""),
+        "actions":res.get("actions",[]),
+        "prevention":res.get("prevention",[]),
         "product":product
     })
 
 # -------------------------------------------------------
-# RUN SERVER
+# RUN
 # -------------------------------------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

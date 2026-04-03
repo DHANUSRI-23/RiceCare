@@ -2,269 +2,311 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>RiceCare</title>
-<link rel="stylesheet" href="/static/style.css">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&family=Noto+Sans+Tamil&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body {
+    font-family: 'Poppins','Noto Sans Tamil',sans-serif;
+}
+
+/* HERO */
+.hero {
+    padding:80px 20px;
+    background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),
+    url('/static/images/banner.jpg') center/cover;
+    color:white;
+    text-align:center;
+}
+
+/* FEATURES */
+.features {
+    padding:60px 20px;
+    text-align:center;
+}
+
+/* IMAGE SECTION */
+.image-section {
+    padding:60px 20px;
+    text-align:center;
+}
+
+/* CIRCLE CARD */
+.circle-card {
+    margin-bottom:30px;
+    transition:0.3s;
+}
+.circle-card:hover {
+    transform:translateY(-10px);
+}
+
+/* CIRCLE IMAGE */
+.circle-img {
+    width:160px;
+    height:160px;
+    border-radius:50%;
+    object-fit:cover;
+    border:5px solid #e8f5e9;
+    box-shadow:0 6px 18px rgba(0,0,0,0.15);
+}
+
+/* TEXT */
+.circle-title {
+    margin-top:15px;
+    font-weight:600;
+}
+.circle-desc {
+    font-size:14px;
+    color:#555;
+}
+
+/* STEPS */
+.steps {
+    background:#f8f9fa;
+    padding:60px 20px;
+}
+
+/* FOOTER */
+footer {
+    background:#111;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+</style>
 </head>
 
 <body>
 
-<nav class="navbar">
-<div class="nav-logo">RiceCare</div>
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg bg-white shadow-sm">
+<div class="container">
 
-<ul class="nav-links">
-<li><a href="/" class="active" id="homeText">Home</a></li>
-<li><a href="/yield" id="yieldText">Yield Prediction</a></li>
-<li><a href="/analyze" id="analyzeText">Analyze Leaf</a></li>
+<a class="navbar-brand fw-bold">🌾 RiceCare</a>
+
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMenu">
+<span class="navbar-toggler-icon"></span>
+</button>
+
+<div class="collapse navbar-collapse" id="navMenu">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="/" id="home">Home</a></li>
+<li class="nav-item"><a class="nav-link" href="/yield" id="yield">Yield</a></li>
+<li class="nav-item"><a class="nav-link" href="/analyze" id="analyze">Analyze</a></li>
 </ul>
 
-<select id="langSelect" onchange="setLanguage(this.value)">
-<option value="en">English</option>
+<select id="langSelect" class="ms-3" onchange="setLanguage(this.value)">
+<option value="en">EN</option>
 <option value="ta">தமிழ்</option>
 </select>
 
+</div>
+</div>
 </nav>
 
+<!-- HERO -->
+<section class="hero">
+<h1 id="heroTitle"></h1>
+<p id="heroDesc"></p>
+<a href="/analyze" class="btn btn-success m-2" id="analyzeBtn"></a>
+<a href="/yield" class="btn btn-outline-light m-2" id="yieldBtn"></a>
+</section>
 
-<header class="hero">
-<div class="hero-content">
-<h1>RiceCare</h1>
-<p id="heroDesc">
-AI-powered identification of Paddy leaf diseases and nutrient deficiencies
-to support healthy crop growth and improved yield.
-</p>
+<!-- FEATURES -->
+<section class="features container">
+<h2 id="featureTitle"></h2>
+
+<div class="row mt-4">
+<div class="col-md-3"><div class="p-3 bg-light rounded"><h5 id="f1"></h5><p id="f1d"></p></div></div>
+<div class="col-md-3"><div class="p-3 bg-light rounded"><h5 id="f2"></h5><p id="f2d"></p></div></div>
+<div class="col-md-3"><div class="p-3 bg-light rounded"><h5 id="f3"></h5><p id="f3d"></p></div></div>
+<div class="col-md-3"><div class="p-3 bg-light rounded"><h5 id="f4"></h5><p id="f4d"></p></div></div>
 </div>
-</header>
+</section>
 
+<!-- DISEASE -->
+<section class="image-section container">
+<h2 id="diseaseTitle"></h2>
+<p id="diseaseDesc"></p>
 
-<!-- DISEASE SECTION -->
-<section class="section">
+<div class="row mt-4 justify-content-center">
 
-<h2 id="diseaseTitle">🦠 Paddy Leaf Diseases</h2>
-
-<p class="section-desc" id="diseaseDesc">
-Early identification of Paddy leaf diseases helps farmers take preventive measures.
-</p>
-
-<div class="card-container">
-
-<div class="card">
-<img src="/static/images/disease/Bacterial_leaf_blight.jpg">
-<h3 id="blightTitle">Bacterial Leaf Blight</h3>
-<p id="blightDesc">
-A bacterial disease causing yellowing and drying of rice leaves.
-</p>
+<div class="col-md-3 col-6 text-center">
+<div class="circle-card">
+<img src="/static/images/disease/Bacterial_leaf_blight.jpg" class="circle-img">
+<h6 id="blightTitle" class="circle-title"></h6>
+<p id="blightDesc" class="circle-desc"></p>
 </div>
-
-<div class="card">
-<img src="/static/images/disease/Brown_spot.jpg">
-<h3 id="brownTitle">Brown Spot</h3>
-<p id="brownDesc">
-A fungal disease causing brown circular spots on leaves.
-</p>
 </div>
 
-<div class="card">
-<img src="/static/images/disease/Leaf_Blast.jpg">
-<h3 id="blastTitle">Leaf Blast</h3>
-<p id="blastDesc">
-A fungal infection forming diamond-shaped lesions on leaves.
-</p>
+<div class="col-md-3 col-6 text-center">
+<div class="circle-card">
+<img src="/static/images/disease/Brown_spot.jpg" class="circle-img">
+<h6 id="brownTitle" class="circle-title"></h6>
+<p id="brownDesc" class="circle-desc"></p>
+</div>
 </div>
 
-<div class="card">
-<img src="/static/images/disease/Tungro.jpg">
-<h3 id="tungroTitle">Tungro Disease</h3>
-<p id="tungroDesc">
-A viral disease spread by green leafhoppers.
-</p>
+<div class="col-md-3 col-6 text-center">
+<div class="circle-card">
+<img src="/static/images/disease/Leaf_Blast.jpg" class="circle-img">
+<h6 id="blastTitle" class="circle-title"></h6>
+<p id="blastDesc" class="circle-desc"></p>
+</div>
 </div>
 
+<div class="col-md-3 col-6 text-center">
+<div class="circle-card">
+<img src="/static/images/disease/Tungro.jpg" class="circle-img">
+<h6 id="tungroTitle" class="circle-title"></h6>
+<p id="tungroDesc" class="circle-desc"></p>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- NUTRIENT -->
+<section class="image-section container">
+<h2 id="nutrientTitle"></h2>
+<p id="nutrientDesc"></p>
+
+<div class="row mt-4 justify-content-center">
+
+<div class="col-md-4 col-6 text-center">
+<div class="circle-card">
+<img src="/static/images/nutrient/Nitrogen.jpg" class="circle-img">
+<h6 id="nitrogenTitle" class="circle-title"></h6>
+<p id="nitrogenDesc" class="circle-desc"></p>
+</div>
+</div>
+
+<div class="col-md-4 col-6 text-center">
+<div class="circle-card">
+<img src="/static/images/nutrient/Phosphorus.jpg" class="circle-img">
+<h6 id="phosphorusTitle" class="circle-title"></h6>
+<p id="phosphorusDesc" class="circle-desc"></p>
+</div>
+</div>
+
+<div class="col-md-4 col-6 text-center">
+<div class="circle-card">
+<img src="/static/images/nutrient/Potassium.jpg" class="circle-img">
+<h6 id="potassiumTitle" class="circle-title"></h6>
+<p id="potassiumDesc" class="circle-desc"></p>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="steps container">
+<h2 id="howTitle"></h2>
+
+<h4 class="mt-4">📊 Yield Prediction</h4>
+<div class="row mt-3">
+<div class="col-md-4"><div class="p-3 bg-white rounded"><p id="y1"></p></div></div>
+<div class="col-md-4"><div class="p-3 bg-white rounded"><p id="y2"></p></div></div>
+<div class="col-md-4"><div class="p-3 bg-white rounded"><p id="y3"></p></div></div>
+</div>
+
+<h4 class="mt-5">🌿 Image Analysis</h4>
+<div class="row mt-3">
+<div class="col-md-4"><div class="p-3 bg-white rounded"><p id="i1"></p></div></div>
+<div class="col-md-4"><div class="p-3 bg-white rounded"><p id="i2"></p></div></div>
+<div class="col-md-4"><div class="p-3 bg-white rounded"><p id="i3"></p></div></div>
 </div>
 
 </section>
-
-
-<!-- NUTRIENT SECTION -->
-<section class="section light-bg">
-
-<h2 id="nutrientTitle">🌿 Nutrient Deficiencies</h2>
-
-<p class="section-desc" id="nutrientDesc">
-Nutrient deficiencies affect plant growth and productivity.
-</p>
-
-<div class="card-container">
-
-<div class="card">
-<img src="/static/images/nutrient/Nitrogen.jpg">
-<h3 id="nitrogenTitle">Nitrogen Deficiency</h3>
-<p id="nitrogenDesc">
-Causes pale yellow leaves and poor plant growth.
-</p>
-</div>
-
-<div class="card">
-<img src="/static/images/nutrient/Phosphorus.jpg">
-<h3 id="phosphorusTitle">Phosphorus Deficiency</h3>
-<p id="phosphorusDesc">
-Leads to dark green leaves and delayed maturity.
-</p>
-</div>
-
-<div class="card">
-<img src="/static/images/nutrient/Potassium.jpg">
-<h3 id="potassiumTitle">Potassium Deficiency</h3>
-<p id="potassiumDesc">
-Causes yellowing and burning at leaf edges.
-</p>
-</div>
-
-</div>
-
-</section>
-
 
 <footer>
-<p>© 2025 RiceCare | Smart Farming with AI</p>
+<p id="footerText"></p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 
 const translations = {
-
 en:{
-home:"Home",
-yield:"Yield Prediction",
-analyze:"Analyze Leaf",
-
-hero:"AI-powered identification of Paddy leaf diseases and nutrient deficiencies to support healthy crop growth and improved yield.",
-
-diseaseTitle:"🦠 Paddy Leaf Diseases",
-diseaseDesc:"Early identification of Paddy leaf diseases helps farmers take preventive measures.",
-
-blightTitle:"Bacterial Leaf Blight",
-blightDesc:"A bacterial disease causing yellowing and drying of rice leaves.",
-
-brownTitle:"Brown Spot",
-brownDesc:"A fungal disease causing brown circular spots on leaves.",
-
-blastTitle:"Leaf Blast",
-blastDesc:"A fungal infection forming diamond-shaped lesions on leaves.",
-
-tungroTitle:"Tungro Disease",
-tungroDesc:"A viral disease spread by green leafhoppers.",
-
-nutrientTitle:"🌿 Nutrient Deficiencies",
-nutrientDesc:"Nutrient deficiencies affect plant growth and productivity.",
-
-nitrogenTitle:"Nitrogen Deficiency",
-nitrogenDesc:"Causes pale yellow leaves and poor plant growth.",
-
-phosphorusTitle:"Phosphorus Deficiency",
-phosphorusDesc:"Leads to dark green leaves and delayed maturity.",
-
-potassiumTitle:"Potassium Deficiency",
-potassiumDesc:"Causes yellowing and burning at leaf edges."
+home:"Home", yield:"Yield", analyze:"Analyze",
+heroTitle:"Smart Rice Farming Powered by AI",
+heroDesc:"Detect diseases, predict yield, and identify nutrient deficiencies using AI.",
+analyzeBtn:"Analyze Crop", yieldBtn:"Predict Yield",
+featureTitle:"Our Features",
+f1:"🌿 Disease Detection", f1d:"Upload leaf images and detect diseases instantly",
+f2:"🌱 Nutrient Deficiency", f2d:"Identify nutrient deficiencies",
+f3:"📊 Yield Prediction", f3d:"AI-based yield estimation",
+f4:"🤖 Smart Advisory", f4d:"Get intelligent recommendations",
+diseaseTitle:"🦠 Paddy Leaf Diseases", diseaseDesc:"Identify diseases visually",
+blightTitle:"Bacterial Leaf Blight", blightDesc:"A disease caused by Xanthomonas oryzae that leads to yellowing and drying of leaves.",
+brownTitle:"Brown Spot", brownDesc:"A fungal disease that causes brown lesions on leaves, leading to reduced plant growth.",
+blastTitle:"Leaf Blast", blastDesc:"A fungal disease that causes lesions on leaves, leading to drying and damage.",
+tungroTitle:"Tungro Disease", tungroDesc:"A viral disease that causes yellowing and stunted growth of plants.",
+nutrientTitle:"🌿 Nutrient Deficiencies", nutrientDesc:"Identify deficiencies visually",
+nitrogenTitle:"Nitrogen Deficiency", nitrogenDesc:"Nitrogen is an essential nutrient that helps in plant growth and green leaf formation.",
+phosphorusTitle:"Phosphorus Deficiency", phosphorusDesc:"Phosphorus is an essential nutrient that supports root development and energy transfer in plants.",
+potassiumTitle:"Potassium Deficiency", potassiumDesc:"Potassium is an essential nutrient that improves plant strength and resistance to diseases.",
+howTitle:"How It Works",
+y1:"1️⃣ Provide crop details", y2:"2️⃣ AI calculates yield", y3:"3️⃣ Get suggestions",
+i1:"1️⃣ Upload image", i2:"2️⃣ AI detects issue", i3:"3️⃣ Get result",
+footerText:"© 2025 RiceCare | AI Smart Farming"
 },
 
 ta:{
-home:"முகப்பு",
-yield:"விளைச்சல் கணிப்பு",
-analyze:"இலை பகுப்பாய்வு",
-
-hero:"நெல் இலை நோய்கள் மற்றும் ஊட்டச்சத்து குறைபாடுகளை AI மூலம் கண்டறிந்து நல்ல விளைச்சலை பெற உதவும்.",
-
-diseaseTitle:"🦠 நெல் இலை நோய்கள்",
-diseaseDesc:"நெல் இலை நோய்களை ஆரம்பத்தில் கண்டறிவது பயிர் சேதத்தை குறைக்க உதவும்.",
-
-blightTitle:"பாக்டீரியா இலை உலர்ச்சி",
-blightDesc:"இலைகள் மஞ்சள் நிறமாகி உலரும் ஒரு பாக்டீரியா நோய்.",
-
-brownTitle:"பழுப்பு தழும்பு",
-brownDesc:"இலைகளில் பழுப்பு வட்ட தழும்புகளை உருவாக்கும் பூஞ்சை நோய்.",
-
-blastTitle:"இலை பிளாஸ்ட்",
-blastDesc:"இலைகளில் வைரம் வடிவ காயங்களை உருவாக்கும் பூஞ்சை நோய்.",
-
-tungroTitle:"துங்க்ரோ நோய்",
-tungroDesc:"பச்சை இலைத் தாவர பூச்சிகள் மூலம் பரவும் வைரஸ் நோய்.",
-
-nutrientTitle:"🌿 ஊட்டச்சத்து குறைபாடுகள்",
-nutrientDesc:"ஊட்டச்சத்து குறைபாடுகள் தாவர வளர்ச்சியை பாதிக்கும்.",
-
-nitrogenTitle:"நைட்ரஜன் குறைபாடு",
-nitrogenDesc:"இலைகள் மஞ்சள் நிறமாகி வளர்ச்சி குறையும்.",
-
-phosphorusTitle:"பாஸ்பரஸ் குறைபாடு",
-phosphorusDesc:"இலைகள் கருமை அல்லது ஊதா நிறமாக மாறும்.",
-
-potassiumTitle:"பொட்டாசியம் குறைபாடு",
-potassiumDesc:"இலை விளிம்புகளில் மஞ்சள் மற்றும் எரிவு போன்ற பாதிப்பு."
+home:"முகப்பு", yield:"விளைச்சல்", analyze:"பகுப்பாய்வு",
+heroTitle:"AI மூலம் நுண்ணறிவு நெல் விவசாயம்",
+heroDesc:"AI மூலம் நோய் மற்றும் விளைச்சலை கண்டறியவும்",
+analyzeBtn:"பகுப்பாய்வு", yieldBtn:"விளைச்சல் கணிப்பு",
+featureTitle:"அம்சங்கள்",
+f1:"🌿 நோய் கண்டறிதல்", f1d:"இலை மூலம் கண்டறிதல்",
+f2:"🌱 ஊட்டச்சத்து குறைபாடு", f2d:"குறைபாடு கண்டறிதல்",
+f3:"📊 விளைச்சல் கணிப்பு", f3d:"AI கணிப்பு",
+f4:"🤖 அறிவுரை", f4d:"பரிந்துரைகள்",
+diseaseTitle:"🦠 நெல் இலை நோய்கள்", diseaseDesc:"இலை அறிகுறிகளை வைத்து நோய்களை புரிந்துகொள்ளலாம்",
+blightTitle:"இலை உலர்ச்சி", blightDesc:"என்பது Xanthomonas oryzae காரணமாக ஏற்படும் நோயாகும்; இது இலைகள் மஞ்சளாகி உலரச் செய்கிறது.",
+brownTitle:"பழுப்பு தழும்பு", brownDesc:"என்பது பூஞ்சை நோயாகும்; இது இலைகளில் பழுப்பு நிற தழும்புகளை ஏற்படுத்தி வளர்ச்சியை குறைக்கிறது.",
+blastTitle:"இலை பிளாஸ்ட்", blastDesc:"என்பது பூஞ்சை நோயாகும்; இது இலைகளில் தழும்புகளை உருவாக்கி உலர்ச்சி மற்றும் சேதத்தை ஏற்படுத்துகிறது.",
+tungroTitle:"துங்க்ரோ", tungroDesc:"என்பது வைரஸ் காரணமாக ஏற்படும் நோயாகும்; இது இலைகள் மஞ்சளாகி வளர்ச்சி குறைவாகும்.",
+nutrientTitle:"🌿 ஊட்டச்சத்து குறைபாடுகள்", nutrientDesc:"இலைகளை கவனித்து ஊட்டச்சத்து குறைகளை அறியலாம்",
+nitrogenTitle:"நைட்ரஜன் குறைபாடு", nitrogenDesc:"நைட்ரஜன் என்பது தாவர வளர்ச்சிக்கும் பச்சை இலை உருவாக்கத்திற்கும் உதவும் முக்கிய ஊட்டச்சத்து.",
+phosphorusTitle:"பாஸ்பரஸ் குறைபாடு", phosphorusDesc:"பாஸ்பரஸ் என்பது வேர் வளர்ச்சிக்கும் சக்தி பரிமாற்றத்திற்கும் உதவும் முக்கிய ஊட்டச்சத்து.",
+potassiumTitle:"பொட்டாசியம் குறைபாடு", potassiumDesc:"பொட்டாசியம் என்பது தாவரத்தின் வலிமையையும் நோய் எதிர்ப்பு திறனையும் அதிகரிக்கும் முக்கிய ஊட்டச்சத்து.",
+howTitle:"செயல்முறை",
+y1:"1️⃣ பயிர் விவரங்களை வழங்கவும்", y2:"2️⃣ AI விளைச்சலை கணக்கிடுகிறது", y3:"3️⃣ பரிந்துரைகளை பெறவும்",
+i1:"1️⃣ படத்தை பதிவேற்றவும்", i2:"2️⃣ AI பிரச்சினையை கண்டறிகிறது", i3:"3️⃣ முடிவை அறியவும்",
+footerText:"© 2025 RiceCare | AI விவசாயம்"
 }
-
 };
 
-
 function setLanguage(lang){
-
 localStorage.setItem("lang",lang);
-
-/* Navbar */
-
-document.getElementById("homeText").innerText = translations[lang].home;
-document.getElementById("yieldText").innerText = translations[lang].yield;
-document.getElementById("analyzeText").innerText = translations[lang].analyze;
-
-/* Banner */
-
-document.getElementById("heroDesc").innerText = translations[lang].hero;
-
-/* Disease section */
-
-document.getElementById("diseaseTitle").innerText = translations[lang].diseaseTitle;
-document.getElementById("diseaseDesc").innerText = translations[lang].diseaseDesc;
-
-document.getElementById("blightTitle").innerText = translations[lang].blightTitle;
-document.getElementById("blightDesc").innerText = translations[lang].blightDesc;
-
-document.getElementById("brownTitle").innerText = translations[lang].brownTitle;
-document.getElementById("brownDesc").innerText = translations[lang].brownDesc;
-
-document.getElementById("blastTitle").innerText = translations[lang].blastTitle;
-document.getElementById("blastDesc").innerText = translations[lang].blastDesc;
-
-document.getElementById("tungroTitle").innerText = translations[lang].tungroTitle;
-document.getElementById("tungroDesc").innerText = translations[lang].tungroDesc;
-
-/* Nutrient section */
-
-document.getElementById("nutrientTitle").innerText = translations[lang].nutrientTitle;
-document.getElementById("nutrientDesc").innerText = translations[lang].nutrientDesc;
-
-document.getElementById("nitrogenTitle").innerText = translations[lang].nitrogenTitle;
-document.getElementById("nitrogenDesc").innerText = translations[lang].nitrogenDesc;
-
-document.getElementById("phosphorusTitle").innerText = translations[lang].phosphorusTitle;
-document.getElementById("phosphorusDesc").innerText = translations[lang].phosphorusDesc;
-
-document.getElementById("potassiumTitle").innerText = translations[lang].potassiumTitle;
-document.getElementById("potassiumDesc").innerText = translations[lang].potassiumDesc;
-
+applyLanguage(lang);
 }
 
+function applyLanguage(lang){
+const t = translations[lang];
 
-/* Load saved language */
+for(let key in t){
+let el = document.getElementById(key);
+if(el) el.innerText = t[key];
+}
 
-window.onload = () => {
+document.body.style.fontFamily =
+lang==="ta" ? "'Noto Sans Tamil', sans-serif" : "'Poppins', sans-serif";
+}
 
+window.onload=()=>{
 let lang = localStorage.getItem("lang") || "en";
-
 document.getElementById("langSelect").value = lang;
-
-setLanguage(lang);
-
+applyLanguage(lang);
 };
 
 </script>

@@ -1,372 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Analyze Rice Leaf | RiceCare</title>
 
-<link rel="stylesheet" href="/static/style.css">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RiceCare Scanner</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&family=Noto+Sans+Tamil&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
 
-.hero{
-background: linear-gradient(rgba(187, 230, 191, 0.8), rgba(51, 125, 56, 0.8)),
-url("/static/images/banner.jpg") center/cover no-repeat;
-color: #ffffff;
-padding: 70px 20px;
-text-align: center;
+body {
+    margin:0;
+    font-family:'Poppins','Noto Sans Tamil',sans-serif;
+    background:#0f172a;
+    color:white;
 }
 
-.analyze-layout{
-display:grid;
-grid-template-columns: 1fr 1.3fr;
-gap:30px;
-max-width:1200px;
-margin:auto;
-align-items:start;
-padding:20px;
+/* NAVBAR */
+.navbar {
+    background:#020617;
+    border-bottom:1px solid #1e293b;
 }
 
-.left-panel{
-background:white;
-padding:25px;
-border-radius:15px;
-box-shadow:0 6px 18px rgba(0,0,0,0.1);
+/* SCAN AREA */
+.scan-area {
+    height:45vh;
+    margin:20px;
+    border-radius:20px;
+    border:2px dashed #22c55e;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
 }
 
-.right-panel{
-background:white;
-padding:25px;
-border-radius:15px;
-box-shadow:0 6px 18px rgba(0,0,0,0.1);
-min-height:450px;
+/* SCAN LINE */
+.scan-line {
+    position:absolute;
+    width:100%;
+    height:2px;
+    background:#22c55e;
+    animation:scan 2s infinite;
 }
 
-.upload-box{
-border:2px dashed #4caf50;
-border-radius:15px;
-padding:50px;
-text-align:center;
-cursor:pointer;
-background:#f8fff8;
-font-size:18px;
-transition:0.3s;
+@keyframes scan {
+    0% { top:0; }
+    100% { top:100%; }
 }
 
-.upload-box:hover{
-background:#ecffec;
-transform:scale(1.02);
+/* TEXT */
+.scan-text {
+    color:#94a3b8;
+    text-align:center;
 }
 
-.preview-container{
-text-align:center;
-margin-top:20px;
+/* IMAGE */
+#preview {
+    max-width:55%;
+    max-height:55%;
+    object-fit:contain;
+    display:none;
+    border-radius:12px;
 }
 
-#leafPreview{
-max-width:100%;
-border-radius:12px;
-display:none;
-box-shadow:0 4px 12px rgba(0,0,0,0.15);
+/* BUTTON */
+.scan-btn {
+    width:90%;
+    margin:10px auto;
+    display:block;
+    padding:15px;
+    border:none;
+    border-radius:15px;
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+    color:white;
+    font-size:18px;
 }
 
-button{
-background:linear-gradient(135deg,#2e7d32,#43a047);
-border:none;
-padding:14px 30px;
-border-radius:10px;
-color:white;
-font-size:16px;
-cursor:pointer;
-transition:0.3s;
-width:100%;
-margin-top:15px;
+/* RESULT SECTION */
+.result-container {
+    padding:20px;
 }
 
-button:disabled{
-background:#9e9e9e;
-cursor:not-allowed;
+.result-card {
+    background:white;
+    color:black;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
 
-button:hover:not(:disabled){
-transform:scale(1.03);
-box-shadow:0 5px 15px rgba(0,0,0,0.2);
+/* TITLE */
+.result-title {
+    font-size:22px;
+    font-weight:600;
+    color:#16a34a;
 }
 
-.result-title{
-font-size:24px;
-font-weight:bold;
-color:#2e7d32;
-margin-bottom:15px;
+/* TAG */
+.tag {
+    background:#22c55e;
+    color:white;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:12px;
 }
 
-.result-section{
-margin-top:15px;
-padding:15px;
-background:#f5fff5;
-border-radius:10px;
+/* SECTION */
+.section { margin-top:15px; }
+
+/* PRODUCT */
+.product-card {
+    display:flex;
+    align-items:center;
+    gap:15px;
+    background:#f0fff4;
+    padding:12px;
+    border-radius:12px;
+    margin-top:15px;
 }
 
-.product-card{
-display:flex;
-align-items:center;
-gap:20px;
-background:#f9fff9;
-border-radius:14px;
-padding:15px;
-margin-bottom:15px;
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
+.product-card img {
+    width:70px;
+    border-radius:10px;
 }
 
-.product-img{
-width:120px;
-height:120px;
-object-fit:contain;
-background:white;
-border-radius:10px;
-padding:8px;
-}
-
-.product-title{
-font-size:18px;
-font-weight:bold;
-color:#2e7d32;
-}
-
-.product-price{
-font-size:16px;
-color:#444;
-margin-top:5px;
-}
-
-.empty-state{
-text-align:center;
-color:#777;
-padding:80px 20px;
-font-size:18px;
-}
-
-.loading{
-text-align:center;
-font-weight:bold;
-color:#2e7d32;
-padding:40px;
-font-size:18px;
-}
-
-@media(max-width:900px){
-.analyze-layout{
-grid-template-columns:1fr;
-}
+/* LOADING */
+.loading {
+    text-align:center;
+    padding:30px;
+    color:#16a34a;
+    font-weight:500;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<nav class="navbar">
-<div class="nav-logo" id="navLogo">RiceCare</div>
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+<div class="container">
 
-<ul class="nav-links">
-<li><a href="/" id="homeText">Home</a></li>
-<li><a href="/yield" id="yieldText">Yield Prediction</a></li>
-<li><a href="/analyze" class="active" id="analyzeText">Analyze Leaf</a></li>
+<a class="navbar-brand text-white">🌾 RiceCare</a>
+
+<button class="navbar-toggler bg-light" data-bs-toggle="collapse" data-bs-target="#navMenu"></button>
+
+<div class="collapse navbar-collapse" id="navMenu">
+
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link text-white" href="/" id="navHome"></a></li>
+<li class="nav-item"><a class="nav-link text-white" href="/yield" id="navYield"></a></li>
+<li class="nav-item"><a class="nav-link active text-success" href="/analyze" id="navAnalyze"></a></li>
 </ul>
 
-<select id="language" onchange="updateLanguage()">
-<option value="en">English</option>
+<select id="langSelect" class="ms-3" onchange="setLanguage(this.value)">
+<option value="en">EN</option>
 <option value="ta">தமிழ்</option>
 </select>
+
+</div>
+</div>
 </nav>
 
-<header class="hero small-hero">
-<h1 id="pageTitle">Analyze Paddy Leaf</h1>
-<p id="pageDesc">Upload a Paddy leaf image to detect disease or nutrient deficiency</p>
-</header>
+<!-- SCAN AREA -->
+<div class="scan-area" onclick="document.getElementById('file').click()">
 
-<section class="section analyze-section">
+<input type="file" id="file" hidden accept="image/*" onchange="previewImage(event)">
 
-<div class="analyze-layout">
+<img id="preview">
 
-<div class="left-panel">
+<div class="scan-line"></div>
 
-<h2 id="cardTitle">🌿 Analyze Leaf</h2>
-
-<label id="uploadLabel">Upload Leaf Image</label>
-
-<div class="upload-box" onclick="document.getElementById('leaf').click()">
-<input type="file" id="leaf" hidden accept="image/*" onchange="previewImg(event)">
-<p id="uploadText">Click to Upload or Drag & Drop</p>
-</div>
-
-<button onclick="analyzeLeaf()" id="analyzeBtn" disabled>Analyze</button>
-
-<div class="preview-container">
-<img id="leafPreview">
-</div>
+<div class="scan-text" id="scanText"></div>
 
 </div>
 
-<div class="right-panel">
-<div id="result">
-<div class="empty-state" id="emptyState">
-🌾 Upload a rice leaf image to start AI analysis
-</div>
-</div>
+<button id="scanBtn" class="scan-btn" onclick="analyze()" disabled></button>
+
+<!-- RESULT -->
+<div class="result-container">
+<div id="result" class="result-card"></div>
 </div>
 
-</div>
-
-</section>
-
-<footer>
-<p id="footerText">© 2025 RiceCare | Smart Farming with AI</p>
-</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 
-const langTexts = {
-en: {
-navLogo: "RiceCare",
-homeText: "Home",
-yieldText: "Yield Prediction",
-analyzeText: "Analyze Leaf",
-pageTitle: "Analyze Paddy Leaf",
-pageDesc: "Upload a Paddy leaf image to detect disease or nutrient deficiency",
-cardTitle: "🌿 Analyze Leaf",
-uploadLabel: "Upload Leaf Image",
-uploadText: "Click to Upload or Drag & Drop",
-analyzeBtn: "Analyze",
-emptyState: "🌾 Upload a rice leaf image to start AI analysis",
-footerText: "© 2025 RiceCare | Smart Farming with AI"
+// 🌐 TRANSLATIONS
+const translations = {
+
+en:{
+navHome:"Home",
+navYield:"Yield",
+navAnalyze:"Analyze",
+
+scanText:"📸 Tap to scan leaf",
+analyzeBtn:"🔍 Analyze",
+loading:"🤖 AI analyzing...",
+
+cause:"Cause",
+actions:"Actions",
+prevention:"Prevention",
+product:"Recommended Product",
+error:"Error analyzing image",
+default:"AI result will appear here"
 },
-ta: {
-navLogo: "ரைஸ்கேர்",
-homeText: "முகப்பு",
-yieldText: "விளைச்சல் கணிப்பு",
-analyzeText: "இலை ஆய்வு",
-pageTitle: "நெல் இலை ஆய்வு செய்யவும்",
-pageDesc: "நெல் இலை படத்தை பதிவேற்றி நோய் அல்லது ஊட்டச்சத்து குறைபாட்டை கண்டறியவும்",
-cardTitle: "🌿 இலை ஆய்வு",
-uploadLabel: "இலை படத்தை பதிவேற்றவும்",
-uploadText: "பதிவேற்ற கிளிக் செய்யவும் அல்லது இழுக்கவும்",
-analyzeBtn: "ஆய்வு செய்யவும்",
-emptyState: "🌾 AI ஆய்வைத் தொடங்க நெல் இலை படத்தை பதிவேற்றவும்",
-footerText: "© 2025 RiceCare | AI மூலம் நுண்ணறிவு விவசாயம்"
+
+ta:{
+navHome:"முகப்பு",
+navYield:"விளைச்சல்",
+navAnalyze:"பகுப்பாய்வு",
+
+scanText:"📸 இலை ஸ்கேன் செய்யவும்",
+analyzeBtn:"🔍 பகுப்பாய்வு",
+loading:"🤖 AI ஆய்வு செய்கிறது...",
+
+cause:"காரணம்",
+actions:"செய்ய வேண்டியது",
+prevention:"தடுப்பு நடவடிக்கை",
+product:"பரிந்துரைக்கப்பட்ட பொருள்",
+error:"பிழை ஏற்பட்டது",
+default:"AI முடிவு இங்கு வரும்"
 }
+
 };
 
-let currentLanguage = "en";
-
-function updateLanguage(){
-currentLanguage = document.getElementById("language").value;
-const texts = langTexts[currentLanguage];
-
-for(const id in texts){
-const el = document.getElementById(id);
-if(el){
-el.innerText = texts[id];
+// 🌐 LANGUAGE
+function setLanguage(lang){
+localStorage.setItem("lang",lang);
+applyLanguage(lang);
 }
-}
+
+function applyLanguage(lang){
+
+const t = translations[lang];
+
+navHome.innerText = t.navHome;
+navYield.innerText = t.navYield;
+navAnalyze.innerText = t.navAnalyze;
+
+scanText.innerText = t.scanText;
+scanBtn.innerText = t.analyzeBtn;
+
+result.innerHTML = `<div style="text-align:center;color:#666">${t.default}</div>`;
 
 document.body.style.fontFamily =
-currentLanguage==="ta"
-? "'Noto Sans Tamil', sans-serif"
-: "sans-serif";
+lang==="ta" ? "'Noto Sans Tamil', sans-serif" : "'Poppins', sans-serif";
+
 }
 
-function previewImg(e){
-const img=document.getElementById("leafPreview");
-img.src=URL.createObjectURL(e.target.files[0]);
-img.style.display="block";
-document.getElementById("analyzeBtn").disabled=false;
+// 📸 PREVIEW
+function previewImage(e){
+const file=e.target.files[0];
+preview.src=URL.createObjectURL(file);
+preview.style.display="block";
+scanText.style.display="none";
+scanBtn.disabled=false;
 }
 
-async function analyzeLeaf(){
+// 🤖 ANALYZE
+async function analyze(){
 
-const file=document.getElementById("leaf").files[0];
-const resultBox=document.getElementById("result");
+const lang = localStorage.getItem("lang") || "en";
+const t = translations[lang];
 
-if(!file){
-alert(currentLanguage==="ta"
-? "தயவுசெய்து படத்தை பதிவேற்றவும்"
-: "Please upload image");
-return;
-}
+const file=document.getElementById("file").files[0];
 
-resultBox.innerHTML=`<div class="loading">🔍 ${
-currentLanguage==="ta"
-? "இலை படம் ஆய்வு செய்யப்படுகிறது..."
-: "Analyzing leaf image..."
-}</div>`;
+result.innerHTML=`<div class="loading">${t.loading}</div>`;
 
 const formData=new FormData();
 formData.append("image",file);
-formData.append("lang", currentLanguage);
+formData.append("lang",lang);
 
 try{
 
-const res=await fetch("/analyze_leaf",{
-method:"POST",
-body:formData
-});
-
+const res=await fetch("/analyze_leaf",{method:"POST",body:formData});
 const data=await res.json();
 
-const cause=data.cause || "-";
-const actions=(data.actions || []).map(r=>`<li>${r}</li>`).join("");
-const prevention=(data.prevention || []).map(r=>`<li>${r}</li>`).join("");
+const actions=(data.actions||[]).map(a=>`<li>${a}</li>`).join("");
+const prevention=(data.prevention||[]).map(p=>`<li>${p}</li>`).join("");
 
+// ✅ PRODUCT UI
 let productHTML = "";
-
-if (data.product) {
-
-let imagePath = data.product.image;   
-let price = currentLanguage === "ta"
-    ? data.product.price_ta
-    : data.product.price_en;
-
+if(data.product){
 productHTML = `
+<div class="section">
+<b>${t.product}</b>
 <div class="product-card">
-    <img src="${imagePath}" class="product-image">
-    <div>
-        <div class="product-title">${data.product.name}</div>
-        <div class="product-price">${price}</div>
-    </div>
+<img src="${data.product.image}">
+<div>
+<b>${data.product.name}</b><br>
+${lang==="ta" ? data.product.price_ta : data.product.price_en}
 </div>
-`;
+</div>
+</div>`;
 }
 
-resultBox.innerHTML=`
-<div class="result-title">🌿 ${data.prediction}</div>
+result.innerHTML=`
+<div class="result-title">
+🌿 ${data.prediction} <span class="tag">AI</span>
+</div>
 
 ${productHTML}
 
-<div class="result-section">
-<b>${currentLanguage==="ta" ? "காரணம்" : "Cause"}</b><br>${cause}
+<div class="section">
+<b>${t.cause}</b>
+<p>${data.cause || "-"}</p>
 </div>
 
-<div class="result-section">
-<b>${currentLanguage==="ta" ? "செய்ய வேண்டியது" : "Recommended Actions"}</b>
+<div class="section">
+<b>${t.actions}</b>
 <ul>${actions}</ul>
 </div>
 
-<div class="result-section">
-<b>${currentLanguage==="ta" ? "தடுப்பு" : "Prevention"}</b>
+<div class="section">
+<b>${t.prevention}</b>
 <ul>${prevention}</ul>
 </div>
 `;
 
 }
-catch(error){
-console.error(error);
-resultBox.innerHTML=currentLanguage==="ta"
-? "படத்தை ஆய்வு செய்ய தவறு ஏற்பட்டது"
-: "Error analyzing image";
+catch{
+result.innerHTML = t.error;
 }
 
 }
+
+// INIT
+window.onload=()=>{
+let lang = localStorage.getItem("lang") || "en";
+langSelect.value = lang;
+applyLanguage(lang);
+};
 
 </script>
 
