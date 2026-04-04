@@ -91,6 +91,8 @@ def analyze_page():
 @app.route("/predict_yield", methods=["POST"])
 def predict_yield():
 
+    df = df.astype(np.float64)
+
     data = request.json
     lang = data.get("lang","en")
 
