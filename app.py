@@ -147,13 +147,22 @@ def predict_yield():
     except:
         return jsonify({"error":"Encoding error"}),400
     
-    expected_cols = yield_model.feature_names_in_
-    df = df[expected_cols]
+    expected_cols = list(yield_model.feature_names_in_)
     
+    for col in expected_cols:
+        if col not in df.columns:
+            df[col] = 0
+
+    # Keep only expected columns in correct order
+    df = df[expected_cols]
+
+    # Force float
     df = df.astype(np.float64)
 
+    # Predict
     pred = float(yield_model.predict(df)[0])
-    pred = max(0, pred)
+
+    print("Prediction:", pred)
 
     recommendations = yield_recommendations(
         pred,
