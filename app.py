@@ -91,8 +91,6 @@ def analyze_page():
 @app.route("/predict_yield", methods=["POST"])
 def predict_yield():
 
-    df = df.astype(np.float64)
-
     data = request.json
     lang = data.get("lang","en")
 
@@ -148,6 +146,8 @@ def predict_yield():
         df["Season"] = season_encoder.transform(df["Season"])
     except:
         return jsonify({"error":"Encoding error"}),400
+    
+    df = df.astype(np.float64)
 
     pred = float(yield_model.predict(df)[0])
 
