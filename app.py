@@ -101,7 +101,7 @@ def predict_yield():
     if not district or not season or area <= 0:
         return jsonify({"error":"Invalid input"}),400
 
-    # GEO
+    # ---------------- GEO ----------------
     geo = requests.get(
         f"http://api.openweathermap.org/geo/1.0/direct?q={district},IN&limit=1&appid={API_KEY}"
     ).json()
@@ -111,7 +111,7 @@ def predict_yield():
 
     lat, lon = geo[0]["lat"], geo[0]["lon"]
 
-    # WEATHER
+    # ---------------- WEATHER ----------------
     forecast = requests.get(
         f"http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
     ).json().get("list",[])
@@ -126,44 +126,57 @@ def predict_yield():
     rainfall = np.sum([d.get("rain",{}).get("3h",0) for d in forecast])
     solar = np.mean([100 - d["clouds"]["all"] for d in forecast])
 
+    # ---------------- BASE DATA ----------------
     df = pd.DataFrame([{
-        "District":district,
-        "Year":datetime.now().year,
-        "Season":season,
-        "Area":area,
-        "Production":0,
-        "T2M":temp_avg,
-        "T2M_MAX":temp_max,
-        "T2M_MIN":temp_min,
-        "RH2M":humidity,
-        "Rainfall":rainfall,
-        "Solar_Radiation":solar,
-        "N":90,"P":45,"K":120,"pH":6.8
+        "District": district,
+        "Season": season,
+        "Year": datetime.now().year,
+        "Area": area,
+        "T2M": temp_avg,
+        "T2M_MAX": temp_max,
+        "T2M_MIN": temp_min,
+        "RH2M": humidity,
+        "Rainfall": rainfall,
+        "Solar_Radiation": solar,
+        "N": 90,
+        "P": 45,
+        "K": 120,
+        "pH": 6.8
     }])
 
+    # ---------------- ENCODING ----------------
     try:
-        df["District"] = district_encoder.transform(df["District"])
-        df["Season"] = season_encoder.transform(df["Season"])
+        df["District_enc"] = district_encoder.transform(df["District"])
+        df["Season_enc"] = season_encoder.transform(df["Season"])
     except:
         return jsonify({"error":"Encoding error"}),400
-    
-    expected_cols = list(yield_model.feature_names_in_)
-    
-    for col in expected_cols:
-        if col not in df.columns:
-            df[col] = 0
 
-    # Keep only expected columns in correct order
-    df = df[expected_cols]
+    # ---------------- FEATURE ENGINEERING ----------------
+    df["Temp_Range"] = df["T2M_MAX"] - df["T2M_MIN"]
+    df["Rainfall_per_Area"] = df["Rainfall"] / (df["Area"] + 1e-6)
+    df["NPK_Sum"] = df["N"] + df["P"] + df["K"]
+    df["Soil_Quality"] = df["NPK_Sum"] / (df["pH"] + 1e-6)
 
-    # Force float
-    df = df.astype(np.float64)
+    df["District_Season_enc"] = df["District_enc"] * df["Season_enc"]
 
-    # Predict
+    # If your training used previous yield
+    df["Prev_Yield"] = 0  # default (or improve later)
+
+    # ---------------- FINAL FEATURES ----------------
+    final_columns = [
+        'District_enc', 'Season_enc', 'Year', 'Area',
+        'T2M', 'T2M_MAX', 'T2M_MIN', 'RH2M',
+        'Rainfall', 'Solar_Radiation', 'N', 'P', 'K', 'pH',
+        'District_Season_enc', 'Prev_Yield', 'Temp_Range',
+        'Rainfall_per_Area', 'NPK_Sum', 'Soil_Quality'
+    ]
+
+    df = df[final_columns]
+
+    # ---------------- PREDICTION ----------------
     pred = float(yield_model.predict(df)[0])
 
-    print("Prediction:", pred)
-
+    # ---------------- RECOMMENDATIONS ----------------
     recommendations = yield_recommendations(
         pred,
         {"avg_temperature":temp_avg,"rainfall_mm":rainfall},
@@ -172,17 +185,19 @@ def predict_yield():
     )
 
     return jsonify({
-        "predicted_yield": round(pred,2),
-        "weather":{
-            "avg_temperature":round(temp_avg,2),
-            "max_temperature":round(temp_max,2),
-            "min_temperature":round(temp_min,2),
-            "humidity":round(humidity,2),
-            "rainfall":round(rainfall,2),
-            "solar_radiation":round(solar,2)
-        },
-        "recommendations":recommendations
-    })
+    "predicted_yield": float(round(pred, 2)),
+
+    "weather": {
+        "avg_temperature": float(round(temp_avg, 2)),
+        "max_temperature": float(round(temp_max, 2)),
+        "min_temperature": float(round(temp_min, 2)),
+        "humidity": float(round(humidity, 2)),
+        "rainfall": float(round(rainfall, 2)),
+        "solar_radiation": float(round(solar, 2))
+    },
+
+    "recommendations": [str(r) for r in recommendations]
+})
 
 # -------------------------------------------------------
 # ANALYZE LEAF
